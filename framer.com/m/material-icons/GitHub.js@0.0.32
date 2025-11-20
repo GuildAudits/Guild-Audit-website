@@ -1,0 +1,8 @@
+/*
+ * GitHub (material-icons/GitHub@0.0.32)
+ *
+ * Learn More: https://www.framer.com/asset-urls
+ */
+
+export * from "https://framerusercontent.com/modules/pDMKnUc63KisZ1nywy3d/mbf1Ycxm2tWlzeVAPSLL/GitHub.js"
+export { default } from "https://framerusercontent.com/modules/pDMKnUc63KisZ1nywy3d/mbf1Ycxm2tWlzeVAPSLL/GitHub.js"

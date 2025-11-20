@@ -1,0 +1,2 @@
+import{a as t}from"https://app.framerstatic.com/chunk-JFRKIM2Y.mjs";import{a}from"https://app.framerstatic.com/chunk-NIDOI5EE.mjs";import{e as s}from"https://app.framerstatic.com/chunk-AHQIRSXG.mjs";var e=s(a());var n=(0,e.createContext)(null);n.displayName="EngineContext";function i(){let o=(0,e.useContext)(n);if(o)return o;let r=t();if(r)return r;throw new Error("EngineContext is not initialized")}export{n as a,i as b};
+//# sourceMappingURL=https://app.framerstatic.com/chunk-GO7WVIKP.mjs.map

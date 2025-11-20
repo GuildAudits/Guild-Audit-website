@@ -1,0 +1,8 @@
+/*
+ * Moon (phosphor-icons/Moon@0.0.53)
+ *
+ * Learn More: https://www.framer.com/asset-urls
+ */
+
+export * from "https://framerusercontent.com/modules/qdFz1d7MF7d8Wsxrv3Ew/tbOlJ2GGWCCiI25KWvfU/Moon.js"
+export { default } from "https://framerusercontent.com/modules/qdFz1d7MF7d8Wsxrv3Ew/tbOlJ2GGWCCiI25KWvfU/Moon.js"

@@ -1,0 +1,8 @@
+/*
+ * Sun (phosphor-icons/Sun@0.0.53)
+ *
+ * Learn More: https://www.framer.com/asset-urls
+ */
+
+export * from "https://framerusercontent.com/modules/wp6xzA2QrHTqCWJAsoKa/Hyhw8DdNtDxDqd366SY7/Sun.js"
+export { default } from "https://framerusercontent.com/modules/wp6xzA2QrHTqCWJAsoKa/Hyhw8DdNtDxDqd366SY7/Sun.js"
