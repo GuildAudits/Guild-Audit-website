@@ -46,18 +46,30 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed manual setup instructions.
 
 ## Verification
 
-1. **Test locally:**
+1. **Run verification script (recommended):**
    ```bash
-   curl http://localhost
+   ./verify-deployment.sh
+   ```
+   This will check all services, connections, and configuration.
+
+2. **Test locally:**
+   ```bash
+   curl http://localhost:9001
    ```
 
-2. **Check services:**
+3. **Test via server IP:**
+   ```bash
+   curl http://YOUR_SERVER_IP:9001
+   ```
+   (Make sure firewall allows port 9001)
+
+4. **Check services:**
    ```bash
    sudo systemctl status nginx
    sudo systemctl status cloudflared
    ```
 
-3. **View logs:**
+4. **View logs:**
    ```bash
    # Nginx
    sudo tail -f /var/log/nginx/access.log
@@ -65,6 +77,8 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed manual setup instructions.
    # Cloudflare Tunnel
    sudo journalctl -u cloudflared -f
    ```
+   
+   **Note:** Some connection warnings in Cloudflare Tunnel logs are normal. Look for "Registered tunnel connection" - at least one should be registered.
 
 ## Troubleshooting
 

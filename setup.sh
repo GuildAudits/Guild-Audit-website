@@ -48,8 +48,8 @@ sudo chmod -R 755 "$WEBSITE_DIR"
 echo -e "${GREEN}Step 6: Creating Nginx configuration...${NC}"
 sudo tee /etc/nginx/sites-available/$NGINX_SITE > /dev/null <<EOF
 server {
-    listen 80;
-    listen [::]:80;
+    listen 9001;
+    listen [::]:9001;
     server_name _;
     
     root $WEBSITE_DIR;
@@ -96,19 +96,26 @@ sudo systemctl restart nginx
 sudo systemctl enable nginx
 
 echo -e "${GREEN}Step 10: Installing Cloudflare Tunnel...${NC}"
-# Download latest cloudflared
-CLOUDFLARED_VERSION=$(curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep tag_name | cut -d '"' -f 4)
-ARCH=$(uname -m)
-if [ "$ARCH" = "x86_64" ]; then
-    ARCH="amd64"
-elif [ "$ARCH" = "aarch64" ]; then
-    ARCH="arm64"
-fi
+# Check if cloudflared is already installed
+if command -v cloudflared &> /dev/null; then
+    echo -e "${YELLOW}cloudflared is already installed. Skipping installation.${NC}"
+    cloudflared --version
+else
+    # Download latest cloudflared
+    CLOUDFLARED_VERSION=$(curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep tag_name | cut -d '"' -f 4)
+    ARCH=$(uname -m)
+    if [ "$ARCH" = "x86_64" ]; then
+        ARCH="amd64"
+    elif [ "$ARCH" = "aarch64" ]; then
+        ARCH="arm64"
+    fi
 
-echo "Downloading cloudflared version $CLOUDFLARED_VERSION for $ARCH..."
-wget -q "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}.deb" -O /tmp/cloudflared.deb
-sudo dpkg -i /tmp/cloudflared.deb || sudo apt-get install -f -y
-rm /tmp/cloudflared.deb
+    echo "Downloading cloudflared version $CLOUDFLARED_VERSION for $ARCH..."
+    wget -q "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}.deb" -O /tmp/cloudflared.deb
+    sudo dpkg -i /tmp/cloudflared.deb || sudo apt-get install -f -y
+    rm /tmp/cloudflared.deb
+    echo -e "${GREEN}cloudflared installed successfully!${NC}"
+fi
 
 echo -e "${GREEN}=========================================${NC}"
 echo -e "${GREEN}Setup completed successfully!${NC}"

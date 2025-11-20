@@ -31,12 +31,23 @@ TUNNEL_NAME=${TUNNEL_NAME:-guild-audit-tunnel}
 
 echo -e "${GREEN}Step 2: Creating tunnel '$TUNNEL_NAME'...${NC}"
 TUNNEL_OUTPUT=$(cloudflared tunnel create "$TUNNEL_NAME" 2>&1)
-TUNNEL_ID=$(echo "$TUNNEL_OUTPUT" | grep -oP '(?<=Created tunnel )[a-f0-9-]+' || echo "")
 
-if [ -z "$TUNNEL_ID" ]; then
-    echo -e "${YELLOW}Could not automatically extract tunnel ID.${NC}"
-    echo "Please enter the tunnel ID manually:"
+# Check if tunnel already exists
+if echo "$TUNNEL_OUTPUT" | grep -q "already exists"; then
+    echo -e "${YELLOW}Tunnel '$TUNNEL_NAME' already exists.${NC}"
+    echo "Listing existing tunnels..."
+    cloudflared tunnel list
+    echo ""
+    echo "Please enter the tunnel ID for '$TUNNEL_NAME':"
     read TUNNEL_ID
+else
+    TUNNEL_ID=$(echo "$TUNNEL_OUTPUT" | grep -oP '(?<=Created tunnel )[a-f0-9-]+' || echo "")
+    
+    if [ -z "$TUNNEL_ID" ]; then
+        echo -e "${YELLOW}Could not automatically extract tunnel ID.${NC}"
+        echo "Please enter the tunnel ID manually:"
+        read TUNNEL_ID
+    fi
 fi
 
 echo -e "${GREEN}Tunnel ID: $TUNNEL_ID${NC}"
@@ -61,7 +72,7 @@ tunnel: $TUNNEL_ID
 credentials-file: $CREDENTIALS_FILE
 
 ingress:
-  - service: http://localhost:80
+  - service: http://localhost:9001
   - service: http_status:404
 EOF
 else
@@ -72,7 +83,7 @@ credentials-file: $CREDENTIALS_FILE
 
 ingress:
   - hostname: $DOMAIN
-    service: http://localhost:80
+    service: http://localhost:9001
   - service: http_status:404
 EOF
 
@@ -93,10 +104,17 @@ EOF
 fi
 
 echo -e "${GREEN}Step 5: Installing Cloudflare Tunnel as a service...${NC}"
-sudo cloudflared service install
+if [ -f "/etc/systemd/system/cloudflared.service" ]; then
+    echo -e "${YELLOW}Cloudflare Tunnel service is already installed. Skipping installation.${NC}"
+    echo -e "${YELLOW}If you need to reinstall, run: sudo cloudflared service uninstall${NC}"
+else
+    sudo cloudflared service install
+fi
 
 echo -e "${GREEN}Step 6: Starting Cloudflare Tunnel service...${NC}"
-sudo systemctl start cloudflared
+# Reload systemd to pick up any config changes
+sudo systemctl daemon-reload
+sudo systemctl restart cloudflared
 sudo systemctl enable cloudflared
 
 echo -e "${GREEN}Step 7: Checking service status...${NC}"

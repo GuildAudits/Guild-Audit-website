@@ -73,8 +73,8 @@ Add the following configuration:
 
 ```nginx
 server {
-    listen 80;
-    listen [::]:80;
+    listen 9001;
+    listen [::]:9001;
     server_name _;  # Replace with your domain if you have one
     
     root /var/www/guild-audit;
@@ -124,7 +124,7 @@ sudo systemctl enable nginx
 sudo systemctl status nginx
 ```
 
-You should see the website at `http://your-server-ip` (if firewall allows).
+You should see the website at `http://your-server-ip:9001` (if firewall allows).
 
 ## Step 4: Install and Configure Cloudflare Tunnel
 
@@ -173,7 +173,7 @@ credentials-file: /home/$USER/.cloudflared/<TUNNEL_ID>.json
 
 ingress:
   - hostname: your-domain.com  # Replace with your domain
-    service: http://localhost:80
+    service: http://localhost:9001
   - service: http_status:404
 ```
 
@@ -197,11 +197,21 @@ Or manually add a CNAME record in Cloudflare DNS:
 sudo cloudflared service install
 ```
 
+**Note:** If you get an error saying the service is already installed, you can either:
+- Skip this step and proceed to step 4.7 (the service is already set up)
+- Or uninstall and reinstall: `sudo cloudflared service uninstall` then run the install command again
+
 ### 4.7 Start and Enable the Service
 
 ```bash
-sudo systemctl start cloudflared
+# Reload systemd to pick up any configuration changes
+sudo systemctl daemon-reload
+
+# Start and enable the service
+sudo systemctl restart cloudflared
 sudo systemctl enable cloudflared
+
+# Check status
 sudo systemctl status cloudflared
 ```
 
@@ -211,8 +221,8 @@ sudo systemctl status cloudflared
 # Allow SSH (important - don't lock yourself out!)
 sudo ufw allow 22/tcp
 
-# Allow HTTP (for local testing, Cloudflare Tunnel doesn't need this)
-sudo ufw allow 80/tcp
+# Allow port 9001 (for direct access via server IP)
+sudo ufw allow 9001/tcp
 
 # Enable firewall
 sudo ufw enable
@@ -221,19 +231,37 @@ sudo ufw enable
 sudo ufw status
 ```
 
-**Note:** Cloudflare Tunnel doesn't require opening ports 80/443 on your firewall since it creates an outbound connection. However, you may want to keep port 80 open for local testing.
+**Note:** Cloudflare Tunnel doesn't require opening ports on your firewall since it creates an outbound connection. However, if you want to access the website directly via the server's IP address, you need to allow port 9001.
 
 ## Step 6: Verify Deployment
 
-1. **Test locally on server:**
+1. **Run the verification script (if available):**
    ```bash
-   curl http://localhost
+   ./verify-deployment.sh
+   ```
+   This will check all services and connections.
+
+2. **Test locally on server:**
+   ```bash
+   curl http://localhost:9001
+   ```
+   You should see HTML content from your website.
+
+3. **Test via server IP (from another machine):**
+   ```bash
+   curl http://YOUR_SERVER_IP:9001
+   ```
+   Replace `YOUR_SERVER_IP` with your actual server IP address.
+
+3. **Test through Cloudflare Tunnel:**
+   Visit your domain in a browser (e.g., `https://your-domain.com`)
+   
+   If you don't have a domain configured, you can get a temporary URL:
+   ```bash
+   cloudflared tunnel info <your-tunnel-name>
    ```
 
-2. **Test through Cloudflare Tunnel:**
-   Visit your domain in a browser (e.g., `https://your-domain.com`)
-
-3. **Check logs:**
+4. **Check logs:**
    ```bash
    # Nginx logs
    sudo tail -f /var/log/nginx/access.log
@@ -242,6 +270,10 @@ sudo ufw status
    # Cloudflare Tunnel logs
    sudo journalctl -u cloudflared -f
    ```
+
+5. **Verify tunnel connections:**
+   Look for "Registered tunnel connection" in the logs - at least one should be registered.
+   Some connection warnings are normal as Cloudflare Tunnel maintains multiple connections for redundancy.
 
 ## Troubleshooting
 
@@ -264,6 +296,12 @@ sudo ufw status
 
 ### Cloudflare Tunnel Issues
 
+- **Service already installed error:**
+  If you see "cloudflared service is already installed", you can:
+  - Skip the installation step and just update the config file at `/etc/cloudflared/config.yml`
+  - Then reload and restart: `sudo systemctl daemon-reload && sudo systemctl restart cloudflared`
+  - Or uninstall first: `sudo cloudflared service uninstall` then reinstall
+
 - **Check tunnel status:**
   ```bash
   sudo systemctl status cloudflared
@@ -283,6 +321,52 @@ sudo ufw status
   ```bash
   cloudflared tunnel list
   ```
+
+- **Connection warnings in logs:**
+  If you see warnings like "control stream encountered a failure" or "context canceled", this is **normal behavior**. Cloudflare Tunnel maintains multiple connections for redundancy and load balancing. As long as you see at least one "Registered tunnel connection" message, your tunnel is working correctly.
+
+- **Update tunnel configuration:**
+  After editing `/etc/cloudflared/config.yml`, reload and restart:
+  ```bash
+  sudo systemctl daemon-reload
+  sudo systemctl restart cloudflared
+  ```
+
+- **"Unauthorized: Failed to get tunnel" error:**
+  This error usually means the tunnel ID doesn't match the credentials file. To fix:
+  
+  1. **List your tunnels:**
+     ```bash
+     cloudflared tunnel list
+     ```
+  
+  2. **Check your config file:**
+     ```bash
+     sudo cat /etc/cloudflared/config.yml
+     ```
+  
+  3. **Verify the tunnel ID matches:**
+     - The `tunnel:` field should match an existing tunnel ID
+     - The `credentials-file:` path should point to `~/.cloudflared/<TUNNEL_ID>.json`
+  
+  4. **If tunnel ID is wrong, update config:**
+     ```bash
+     sudo nano /etc/cloudflared/config.yml
+     # Update the tunnel ID and credentials-file path
+     sudo systemctl daemon-reload
+     sudo systemctl restart cloudflared
+     ```
+  
+  5. **If credentials are missing, re-authenticate:**
+     ```bash
+     cloudflared tunnel login
+     # Then update the config with the correct credentials path
+     ```
+  
+  6. **Run the troubleshooting script (if available):**
+     ```bash
+     ./troubleshoot-tunnel.sh
+     ```
 
 ### Permission Issues
 

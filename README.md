@@ -25,6 +25,7 @@ For comprehensive deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 - **Web Server:** Nginx (installed by setup script)
 - **Tunnel:** Cloudflare Tunnel (cloudflared)
 - **Storage:** ~500MB for website files
+- **Port:** 9001 (configurable)
 
 ## Deployment Options
 
@@ -42,6 +43,9 @@ Follow the step-by-step instructions in [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 - `setup.sh` - Automated setup script for Nginx and website deployment
 - `cloudflare-tunnel-setup.sh` - Automated Cloudflare Tunnel configuration
+- `change-port.sh` - Script to change the port of an existing deployment
+- `verify-deployment.sh` - Script to verify deployment status
+- `troubleshoot-tunnel.sh` - Script to troubleshoot Cloudflare Tunnel issues
 - `DEPLOYMENT.md` - Comprehensive deployment guide
 - `QUICK_START.md` - Quick reference for deployment
 
