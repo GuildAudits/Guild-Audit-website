@@ -1,4 +1,3 @@
-
         var animator = (() => {
             var k = (e, t, r) => r > t ? t : r < e ? e : r;
             var F = () => {};
