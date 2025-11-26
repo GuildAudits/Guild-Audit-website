@@ -3,7 +3,7 @@ export const window = typeof document !== "undefined" ? globalThis.window : unde
 export const global = typeof document === "undefined" ? {} : undefined
 if (typeof document === "undefined") {
     const originalObjectToString = Object.prototype.toString
-    Object.prototype.toString = function(...args) {
+    Object.prototype.toString = function (...args) {
         return this === global ? "[object global]" : originalObjectToString.call(this, ...args)
     }
 }

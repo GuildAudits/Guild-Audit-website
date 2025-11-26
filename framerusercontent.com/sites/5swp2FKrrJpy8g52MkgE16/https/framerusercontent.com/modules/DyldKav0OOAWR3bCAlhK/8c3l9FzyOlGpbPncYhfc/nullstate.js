@@ -1,6 +1,4 @@
-import {
-    jsx as _jsx
-} from "react/jsx-runtime";
+import { jsx as _jsx } from "react/jsx-runtime";
 import * as React from "react";
 export const containerStyles = {
     width: "100%",
@@ -25,13 +23,12 @@ const emptyStateStyle = {
     color: "#a5a5a5",
     flexDirection: "column"
 };
-export const NullState = /*#__PURE__*/ React.forwardRef((_, ref) => {
-    return ( /*#__PURE__*/ _jsx("div", {
+export const NullState = /*#__PURE__*/ React.forwardRef((_, ref)=>{
+    return(/*#__PURE__*/ _jsx("div", {
         style: emptyStateStyle,
         ref: ref
     }));
-})
-/*
+}) /*
 
 <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -67,23 +64,7 @@ export const NullState = /*#__PURE__*/ React.forwardRef((_, ref) => {
                     ></path>
                 </g>
             </svg>
-            */
-;
+            */ ;
 
-export const __FramerMetadata__ = {
-    "exports": {
-        "containerStyles": {
-            "type": "variable",
-            "annotations": {
-                "framerContractVersion": "1"
-            }
-        },
-        "NullState": {
-            "type": "variable",
-            "annotations": {
-                "framerContractVersion": "1"
-            }
-        }
-    }
-}
+export const __FramerMetadata__ = {"exports":{"containerStyles":{"type":"variable","annotations":{"framerContractVersion":"1"}},"NullState":{"type":"variable","annotations":{"framerContractVersion":"1"}}}}
 //# sourceMappingURL=./nullstate.map
