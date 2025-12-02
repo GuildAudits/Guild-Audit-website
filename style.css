@@ -144,7 +144,8 @@
       padding: 20px;
       display: flex;
       position: fixed;
-      bottom: 0
+      bottom: 0;
+      display: none;
     }
 
     body {
